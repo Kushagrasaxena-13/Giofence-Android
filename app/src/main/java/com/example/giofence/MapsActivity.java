@@ -10,6 +10,7 @@ import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,6 +18,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
@@ -30,6 +32,18 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.util.HashMap;
+import java.util.Objects;
+
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener {
 
@@ -38,6 +52,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private GeofencingClient geofencingClient;
     private GeofenceHelper geofenceHelper;
+
+//    FusedLocationProviderClient fusedLocationProviderClient;
+
+
+
+
 //    Button btn;
 
     private float GEOFENCE_RADIUS = 200;
@@ -61,6 +81,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         geofencingClient = LocationServices.getGeofencingClient(this);
         geofenceHelper = new GeofenceHelper(this);
 
+//
+
 
     }
 
@@ -74,6 +96,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
      */
+
+
+
+
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -84,12 +111,41 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         enableUserLocation();
 
+
+
+
+
+
         mMap.setOnMapLongClickListener(this);
     }
+
+
+
+
+
+//    private void getLocation() {
+//        if (ActivityCompat.checkSelfPermission(
+//                MapsActivity.this,Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+//                MapsActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
+//        } else {
+//            Location locationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+//            if (locationGPS != null) {
+//                double lat = locationGPS.getLatitude();
+//                double longi = locationGPS.getLongitude();
+//                latitude = String.valueOf(lat);
+//                longitude = String.valueOf(longi);
+//
+//            } else {
+//                Toast.makeText(this, "Unable to find location.", Toast.LENGTH_SHORT).show();
+//            }
+//        }
+//    }
 
     private void enableUserLocation() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
+
         } else {
             //Ask for permission
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
@@ -100,6 +156,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }
     }
+
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -159,6 +217,44 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void handleMapLongClick(LatLng latLng) {
         mMap.clear();
         addMarker(latLng);
+
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("Connections").child(FirebaseAuth.getInstance().getUid().toString());
+
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+
+                child child = snapshot.getValue(com.example.giofence.child.class);
+//                Toast.makeText(geofenceHelper, child.id, Toast.LENGTH_SHORT).show();
+
+
+                DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("Location").child(child.getId());
+//
+        HashMap<String,Object> mp = new HashMap<>();
+
+        mp.put("id",child.getId());
+        mp.put("parent",child.getParent());
+        mp.put("latLng",latLng);
+
+        ref.setValue(mp).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+
+            }
+        });
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
+            }
+        });
+
+
+
+//
+
         addCircle(latLng, GEOFENCE_RADIUS);
         addGeofence(latLng, GEOFENCE_RADIUS);
     }

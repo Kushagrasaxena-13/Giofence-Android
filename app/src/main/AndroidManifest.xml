@@ -8,19 +8,34 @@
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+<!--    <uses-permission android:name="android.permission." />-->
+
+<!--    <uses-permission android:name="android.permgps" />-->
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/logo"
-        android:label="Geo-fence Mapping"
+        android:label="Geofence Mapping"
         android:roundIcon="@drawable/logo"
         android:supportsRtl="true"
         android:theme="@style/Theme.GioFence">
-        <activity android:name=".splash">
+        <activity android:name=".Add_Child"></activity>
+        <activity android:name=".Register" />
+        <activity android:name=".Login">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".splash">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
             </intent-filter>
         </activity>
         <!--
@@ -42,7 +57,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+                <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity">
